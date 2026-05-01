@@ -1,0 +1,544 @@
+================================================================
+            WORKFLOW BACKEND - API DOCUMENTATION
+================================================================
+Base URL : http://localhost:5000/api/v1
+Auth     : Bearer token required where marked [AUTH]
+Role     : [SUPERADMIN] means only superAdmin role allowed
+================================================================
+
+
+================================================================
+  1. USERS
+================================================================
+Route Prefix: /api/v1/users
+
+----------------------------------------------------------------
+1.1  SIGN UP
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/signup
+Auth   : No
+
+Body (JSON):
+{
+  "email": "john@example.com",
+  "name": "John Doe",
+  "password": "Password@123",
+  "confirmPassword": "Password@123"
+}
+
+----------------------------------------------------------------
+1.2  VERIFY EMAIL
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/verify-email/:token
+Auth   : No
+
+Params:
+  token  - the verification token sent to email (in URL)
+
+Body   : None
+
+----------------------------------------------------------------
+1.3  SIGN IN
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/signin
+Auth   : No
+
+Body (JSON):
+{
+  "email": "john@example.com",
+  "password": "Password@123"
+}
+
+----------------------------------------------------------------
+1.4  FORGOT PASSWORD
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/forgot-password
+Auth   : No
+
+Body (JSON):
+{
+  "email": "john@example.com"
+}
+
+----------------------------------------------------------------
+1.5  RESET PASSWORD
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/reset-password/:token
+Auth   : No
+
+Params:
+  token  - the reset token sent to email (in URL)
+
+Body (JSON):
+{
+  "password": "NewPassword@123",
+  "confirmPassword": "NewPassword@123"
+}
+
+----------------------------------------------------------------
+1.6  ACCEPT INVITATION
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/accept-invitation
+Auth   : No
+
+Body (JSON):
+{
+  "token": "invitationTokenHere",
+  "password": "Password@123",
+  "confirmPassword": "Password@123"
+}
+
+----------------------------------------------------------------
+1.7  INVITE TEAM MEMBER
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/users/invite-team-members
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body (JSON):
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "role": "editor",        // "admin" | "viewer" | "editor"
+  "rate": 50               // optional, number >= 0
+}
+
+----------------------------------------------------------------
+1.8  UPDATE TEAM MEMBER
+----------------------------------------------------------------
+Method : PATCH
+Route  : http://localhost:5000/api/v1/users/update-team-members/:userId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  userId  - MongoDB ObjectId of the user (in URL)
+
+Body (JSON):
+{
+  "userId": "64f1a2b3c4d5e6f7a8b9c0d1",
+  "name": "Jane Updated",
+  "role": "viewer",        // "admin" | "viewer" | "editor"
+  "rate": 60               // optional, number >= 0
+}
+
+----------------------------------------------------------------
+1.9  GET WORKSPACE USERS
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/users/workspace-users
+Auth   : [AUTH]
+
+Headers:
+  Authorization: Bearer <token>
+
+Query Params (optional):
+  page   - page number, default: 1
+  limit  - items per page (1-100), default: 10
+  role   - filter by role: "admin" | "editor" | "viewer"
+  search - search by name or email
+
+Example:
+  http://localhost:5000/api/v1/users/workspace-users?page=1&limit=10&role=editor&search=john
+
+----------------------------------------------------------------
+1.10 UPDATE USER (self)
+----------------------------------------------------------------
+Method : PATCH
+Route  : http://localhost:5000/api/v1/users/update-user
+Auth   : [AUTH]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body (JSON):
+{
+  "name": "New Name"       // min 2 chars, required
+}
+
+----------------------------------------------------------------
+1.11 DELETE USER
+----------------------------------------------------------------
+Method : DELETE
+Route  : http://localhost:5000/api/v1/users/delete-user/:userId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  userId  - MongoDB ObjectId of the user to delete (in URL)
+
+Body   : None
+
+Example:
+  http://localhost:5000/api/v1/users/delete-user/64f1a2b3c4d5e6f7a8b9c0d1
+
+
+================================================================
+  2. WORKSPACE
+================================================================
+Route Prefix: /api/v1/workspace
+
+----------------------------------------------------------------
+2.1  CREATE WORKSPACE
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/workspace/createWorkspace
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body (JSON):
+{
+  "companyName": "Acme Corp",
+  "companyType": "LLC",
+  "headquarters": "New York, USA",
+  "industry": "Technology",
+  "employeeCount": "50-100",
+  "currency": "USD",
+  "primaryWorkflowTypes": ["HR", "Finance"],
+  "notificationPreferences": {
+    "email": true,
+    "slack": false,
+    "teams": false,
+    "inApp": true
+  },
+  "companyEmail": "info@acme.com",       // optional
+  "foundedYear": "2010",                 // optional
+  "automationPriority": "high",          // optional
+  "initialTeamSize": "10",               // optional
+  "expectedWorkflows": "20",             // optional
+  "taxId": "123456789",                  // optional
+  "registrationNumber": "REG001",        // optional
+  "timezone": "America/New_York",        // optional
+  "website": "https://acme.com",         // optional
+  "phoneNumber": "+1234567890"           // optional
+}
+
+----------------------------------------------------------------
+2.2  UPDATE WORKSPACE
+----------------------------------------------------------------
+Method : PATCH
+Route  : http://localhost:5000/api/v1/workspace/updateWorkspace
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body (JSON) - send only fields you want to update (min 1):
+{
+  "companyName": "Acme Corp Updated",
+  "industry": "SaaS",
+  "currency": "EUR",
+  "timezone": "Europe/London",
+  "notificationPreferences": {
+    "email": true,
+    "slack": true,
+    "teams": false,
+    "inApp": true
+  }
+}
+
+----------------------------------------------------------------
+2.3  GET USER WORKSPACE
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/workspace/getUserWorkspace
+Auth   : [AUTH]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body   : None
+
+----------------------------------------------------------------
+2.4  WORKSPACE OVERVIEW
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/workspace/overview
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body   : None
+
+
+================================================================
+  3. PROCESS
+================================================================
+Route Prefix: /api/v1/process
+
+----------------------------------------------------------------
+3.1  CREATE PROCESS
+----------------------------------------------------------------
+Method : POST
+Route  : http://localhost:5000/api/v1/process/create
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body (JSON):
+{
+  "name": "Onboarding Process",
+  "visibility": "private",       // "private" | "public"
+  "steps": [
+    {
+      "title": "Send Welcome Email",
+      "description": "Send the welcome email to the new hire",   // optional
+      "timeEstimate": "30 mins",                                  // optional
+      "assignee": "64f1a2b3c4d5e6f7a8b9c0d1",                    // optional, userId
+      "notes": "Use email template v2",                           // optional
+      "status": "draft"                                           // optional: "draft"|"completed"|"inprogress"
+    }
+  ],
+  "description": "Process for new employee onboarding",          // optional
+  "category": "HR",                                              // optional
+  "assignees": ["64f1a2b3c4d5e6f7a8b9c0d1"],                     // optional, array of userIds
+  "status": "draft",                                             // optional: "draft"|"completed"|"inprogress"
+  "settings": {                                                  // optional
+    "notifications": {
+      "email": true,
+      "slack": false,
+      "inApp": true
+    },
+    "automation": {
+      "autoAssignTasks": false,
+      "dueDateReminders": true,
+      "escalateOverdueTasks": false
+    }
+  }
+}
+
+----------------------------------------------------------------
+3.2  UPDATE PROCESS
+----------------------------------------------------------------
+Method : PATCH
+Route  : http://localhost:5000/api/v1/process/update/:processId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  processId  - MongoDB ObjectId of the process (in URL)
+
+Body (JSON) - send only fields to update (min 1):
+{
+  "name": "Updated Process Name",
+  "status": "inprogress",
+  "steps": [
+    {
+      "_id": "64f1a2b3c4d5e6f7a8b9c0d2",   // include _id to update existing step
+      "title": "Updated Step Title",
+      "status": "completed"
+    },
+    {
+      "title": "New Step",                   // no _id = new step
+      "description": "New step description"
+    }
+  ]
+}
+
+----------------------------------------------------------------
+3.3  DELETE PROCESS
+----------------------------------------------------------------
+Method : DELETE
+Route  : http://localhost:5000/api/v1/process/delete/:processId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  processId  - MongoDB ObjectId of the process (in URL)
+
+Body   : None
+
+Example:
+  http://localhost:5000/api/v1/process/delete/64f1a2b3c4d5e6f7a8b9c0d1
+
+----------------------------------------------------------------
+3.4  LIST WORKSPACE PROCESSES
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/process/workspace/list
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Query Params (optional):
+  search  - search by process name
+  status  - filter: "draft" | "completed" | "inprogress"
+  page    - page number, default: 1
+  limit   - items per page (1-100), default: 10
+
+Example:
+  http://localhost:5000/api/v1/process/workspace/list?page=1&limit=10&status=draft&search=onboarding
+
+----------------------------------------------------------------
+3.5  GET ASSIGNED PROCESSES (My Processes)
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/process/assigned/me
+Auth   : [AUTH]
+
+Headers:
+  Authorization: Bearer <token>
+
+Body   : None
+
+----------------------------------------------------------------
+3.6  GET SINGLE PROCESS
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/process/:processId
+Auth   : [AUTH]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  processId  - MongoDB ObjectId of the process (in URL)
+
+Body   : None
+
+Example:
+  http://localhost:5000/api/v1/process/64f1a2b3c4d5e6f7a8b9c0d1
+
+
+================================================================
+  4. STEP
+================================================================
+Route Prefix: /api/v1/step
+
+----------------------------------------------------------------
+4.1  UPDATE STEP
+----------------------------------------------------------------
+Method : PATCH
+Route  : http://localhost:5000/api/v1/step/update/:stepId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  stepId  - MongoDB ObjectId of the step (in URL, optional)
+
+Body (JSON) - send only fields to update (min 1):
+{
+  "title": "Updated Step Title",
+  "description": "Updated description",
+  "timeEstimate": "1 hour",
+  "assignee": "64f1a2b3c4d5e6f7a8b9c0d1",
+  "notes": "Important note here",
+  "status": "completed"   // "draft"|"pending"|"completed"|"rejected"|"inreview"|"inprogress"
+}
+
+----------------------------------------------------------------
+4.2  DELETE STEP
+----------------------------------------------------------------
+Method : DELETE
+Route  : http://localhost:5000/api/v1/step/delete/:stepId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  stepId  - MongoDB ObjectId of the step (in URL)
+
+Body   : None
+
+Example:
+  http://localhost:5000/api/v1/step/delete/64f1a2b3c4d5e6f7a8b9c0d2
+
+
+================================================================
+  5. ACTIVITY LOG
+================================================================
+Route Prefix: /api/v1/activity-log
+
+----------------------------------------------------------------
+5.1  GET ACTIVITY LOGS (List)
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/activity-log/list
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Query Params (optional):
+  page    - page number, default: 1
+  limit   - items per page (1-100), default: 20
+  action  - filter by action type (see activity actions enum)
+  userId  - filter by userId (24-char hex string)
+
+Example:
+  http://localhost:5000/api/v1/activity-log/list?page=1&limit=20&userId=64f1a2b3c4d5e6f7a8b9c0d1
+
+----------------------------------------------------------------
+5.2  GET ACTIVITY LOGS BY ENTITY
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/activity-log/entity/:entityId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  entityId  - MongoDB ObjectId of the entity (process, step, etc.) (in URL)
+
+Query Params (optional):
+  page   - page number, default: 1
+  limit  - items per page (1-100), default: 20
+
+Example:
+  http://localhost:5000/api/v1/activity-log/entity/64f1a2b3c4d5e6f7a8b9c0d1?page=1&limit=20
+
+----------------------------------------------------------------
+5.3  GET ACTIVITY LOG BY ID
+----------------------------------------------------------------
+Method : GET
+Route  : http://localhost:5000/api/v1/activity-log/:logId
+Auth   : [AUTH] [SUPERADMIN]
+
+Headers:
+  Authorization: Bearer <token>
+
+Params:
+  logId  - MongoDB ObjectId of the log entry (in URL)
+
+Body   : None
+
+Example:
+  http://localhost:5000/api/v1/activity-log/64f1a2b3c4d5e6f7a8b9c0d3
+
+
+================================================================
+  NOTES
+================================================================
+- All protected routes require: Authorization: Bearer <token>
+- [SUPERADMIN] routes are restricted to users with superAdmin role
+- MongoDB IDs are 24-character hex strings (ObjectId format)
+- Step status values  : draft | pending | completed | rejected | inreview | inprogress
+- Process status values: draft | completed | inprogress
+- User role values    : admin | editor | viewer
+================================================================

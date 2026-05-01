@@ -1,0 +1,54 @@
+const API_ROUTES = {
+  BASE: "/v1",
+  AUTH: {
+    BASE: "/auth",
+    REGISTER: "/register",
+    LOGIN: "/login",
+    LOGOUT: "/logout",
+    REFRESH_TOKENS: "/refresh-tokens",
+    FORGOT_PASSWORD: "/forgot-password",
+    RESET_PASSWORD: "/reset-password",
+    SEND_VERIFICATION_EMAIL: "/send-verification-email",
+    VERIFY_EMAIL: "/verify-email",
+  },
+  USER: {
+    BASE: "/user",
+    CREATE_USER: "/createUser",
+    GET_USER: "/getUser",
+  },
+  WORKSPACE: {
+    BASE: "/workspace",
+    CREATE_WORKSPACE: "/createWorkspace",
+    UPDATE_WORKSPACE: "/updateWorkspace",
+    GET_USER_WORKSPACE: "/getUserWorkspace",
+    ADD_MEMBER: "/addMember",
+    SEND_ADD_MEMBER_EMAIL: "/sendAddMemberEmail",
+    VERIFY_INVITE: "/verify-invite",
+    UPDATE_MEMBER: "/updateMember",
+    DELETE_MEMBER: "/deleteMember",
+    OVERVIEW: "/overview",
+  },
+  PROCESS: {
+    BASE: "/process",
+    CREATE_PROCESS: "/create",
+    UPDATE_PROCESS: "/update/:processId",
+    DELETE_PROCESS: "/delete/:processId",
+    LIST_WORKSPACE_PROCESS: "/workspace/list",
+    GET_SINGLE_PROCESS: "/:processId",
+    LIST_ASSIGNED_PROCESS: "/assigned/me",
+  },
+  STEP: {
+    BASE: "/step",
+    UPDATE_STEP: "/update/:stepId?",
+    DELETE_STEP: "/delete/:stepId",
+    COMPLETE_STEP: "/complete/:stepId",
+  },
+  ACTIVITY_LOG: {
+    BASE: "/activity-log",
+    LIST: "/list",
+    GET_BY_ID: "/:logId",
+    GET_BY_ENTITY: "/entity/:entityId",
+  },
+};
+
+module.exports = API_ROUTES;
