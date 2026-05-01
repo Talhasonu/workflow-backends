@@ -9,7 +9,6 @@ const app = express();
 
 // enable cors
 const allowedOrigins = [
-  "http://localhost:3000",
   ...(config.Frontend_URLs || []),
   config.backendUrl,
 ].filter(Boolean);
