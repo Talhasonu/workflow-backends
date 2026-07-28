@@ -1,14 +1,19 @@
 const dotenv = require("dotenv");
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const normalizeUrl = (value) => {
   if (typeof value !== "string") return undefined;
   return value
     .trim()
     .replace(/\s+$/g, "")
-    .replace(/\/+$/g, "")
+    .replace(/\/+/g, "/")
     .replace(/\/\/+/g, "/");
+};
+
+const normalizeMongoUrl = (value) => {
+  if (typeof value !== "string") return undefined;
+  return value.trim();
 };
 
 const parseUrls = (value) => {
@@ -32,7 +37,7 @@ module.exports = {
     jwtRefreshExp: process.env.JWT_REFRESH_EXPIRE,
   },
   mongoose: {
-    url: process.env.MONGODB_URL,
+    url: normalizeMongoUrl(process.env.MONGODB_URL),
     options: {
       useCreateIndex: true,
       useNewUrlParser: true,

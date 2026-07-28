@@ -60,10 +60,20 @@ app.use((req, res) => {
 
 // global error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.status || 500).json({
-    status: "error",
-    message: err.message || "Internal Server Error",
+  const status  = err.statusCode || err.status || 500;
+  const message = err.message || "Internal Server Error";
+
+  // Always log the full error in the server console so devs can diagnose
+  console.error(`[Error] ${req.method} ${req.originalUrl} → ${status}: ${message}`);
+  if (err.stack) console.error(err.stack);
+
+  res.status(status).json({
+    status:  status >= 500 ? "error" : "fail",
+    message,
+    // Only expose stack trace in development
+    ...(process.env.NODE_ENV === "development" && err.stack
+      ? { stack: err.stack }
+      : {}),
   });
 });
 
