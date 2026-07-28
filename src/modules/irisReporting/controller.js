@@ -1,6 +1,6 @@
-const httpStatus = require('http-status');
-const catchAsync = require('../../utils/catchAsync');
-const irisReportingService = require('./service');
+const httpStatus = require("http-status");
+const catchAsync = require("../../utils/catchAsync");
+const irisReportingService = require("./service");
 
 const getOverview = catchAsync(async (req, res) => {
   const workspaceId = req.user?.workspaceId || req.user?.workspace?._id;
@@ -24,7 +24,10 @@ const getReportPack = catchAsync(async (req, res) => {
 
 const createRequirement = catchAsync(async (req, res) => {
   const workspaceId = req.user?.workspaceId || req.user?.workspace?._id;
-  const requirement = await irisReportingService.createRequirement({ workspaceId, payload: req.body });
+  const requirement = await irisReportingService.createRequirement({
+    workspaceId,
+    payload: req.body,
+  });
 
   return res.status(httpStatus.CREATED).send({
     success: true,
@@ -48,7 +51,10 @@ const updateRequirement = catchAsync(async (req, res) => {
 
 const deleteRequirement = catchAsync(async (req, res) => {
   const workspaceId = req.user?.workspaceId || req.user?.workspace?._id;
-  const result = await irisReportingService.deleteRequirement({ workspaceId, requirementId: req.params.requirementId });
+  const result = await irisReportingService.deleteRequirement({
+    workspaceId,
+    requirementId: req.params.requirementId,
+  });
 
   return res.status(httpStatus.OK).send({
     success: true,
@@ -58,7 +64,7 @@ const deleteRequirement = catchAsync(async (req, res) => {
 
 const uploadEvidenceFile = catchAsync(async (req, res) => {
   if (!req.file) {
-    throw new Error('No file uploaded');
+    throw new Error("No file uploaded");
   }
 
   const workspaceId = req.user?.workspaceId || req.user?.workspace?._id;

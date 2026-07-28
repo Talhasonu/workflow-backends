@@ -1,8 +1,8 @@
-const express = require('express');
-const multer = require('multer');
-const auth = require('../../middlewares/auth');
-const { isSuperAdmin } = require('../../middlewares/auth');
-const irisReportingController = require('./controller');
+const express = require("express");
+const multer = require("multer");
+const auth = require("../../middlewares/auth");
+const { isSuperAdmin } = require("../../middlewares/auth");
+const irisReportingController = require("./controller");
 
 const router = express.Router();
 
@@ -15,13 +15,49 @@ const upload = multer({
 });
 
 router
-  .get('/overview', auth(), isSuperAdmin(), irisReportingController.getOverview)
-  .get('/report-pack', auth(), isSuperAdmin(), irisReportingController.getReportPack)
-  .post('/requirements', auth(), isSuperAdmin(), irisReportingController.createRequirement)
-  .patch('/requirements/:requirementId', auth(), isSuperAdmin(), irisReportingController.updateRequirement)
-  .delete('/requirements/:requirementId', auth(), isSuperAdmin(), irisReportingController.deleteRequirement)
-  .post('/requirements/:requirementId/files', auth(), isSuperAdmin(), upload.single('file'), irisReportingController.uploadEvidenceFile)
-  .get('/requirements/:requirementId/files/:fileId', auth(), isSuperAdmin(), irisReportingController.downloadEvidenceFile)
-  .delete('/requirements/:requirementId/files/:fileId', auth(), isSuperAdmin(), irisReportingController.deleteEvidenceFile);
+  .get("/overview", auth(), isSuperAdmin(), irisReportingController.getOverview)
+  .get(
+    "/report-pack",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.getReportPack,
+  )
+  .post(
+    "/requirements",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.createRequirement,
+  )
+  .patch(
+    "/requirements/:requirementId",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.updateRequirement,
+  )
+  .delete(
+    "/requirements/:requirementId",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.deleteRequirement,
+  )
+  .post(
+    "/requirements/:requirementId/files",
+    auth(),
+    isSuperAdmin(),
+    upload.single("file"),
+    irisReportingController.uploadEvidenceFile,
+  )
+  .get(
+    "/requirements/:requirementId/files/:fileId",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.downloadEvidenceFile,
+  )
+  .delete(
+    "/requirements/:requirementId/files/:fileId",
+    auth(),
+    isSuperAdmin(),
+    irisReportingController.deleteEvidenceFile,
+  );
 
 module.exports = router;
