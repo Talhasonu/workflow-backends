@@ -13,7 +13,7 @@ const buildIrisReportingSummary = (records = []) => {
   const evidenceCount = records.reduce(
     (sum, record) =>
       sum +
-      (Array.isArray(record.evidenceItems) ? record.evidenceItems.length : 0),
+      (Array.isArray(record.evidenceFiles) ? record.evidenceFiles.length : 0),
     0,
   );
   const today = new Date();

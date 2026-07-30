@@ -1,23 +1,25 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { buildIrisReportingSummary } = require('../src/modules/irisReporting/summary');
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const {
+  buildIrisReportingSummary,
+} = require("../src/modules/irisReporting/summary");
 
-test('buildIrisReportingSummary computes status and evidence metrics', () => {
+test("buildIrisReportingSummary computes status and evidence metrics", () => {
   const records = [
     {
-      status: 'in_progress',
+      status: "in_progress",
       evidenceItems: [{}, {}, {}],
-      dueDate: '2026-08-10',
+      dueDate: "2026-08-10",
     },
     {
-      status: 'completed',
+      status: "completed",
       evidenceItems: [{}],
-      dueDate: '2026-07-20',
+      dueDate: "2026-07-20",
     },
     {
-      status: 'blocked',
+      status: "blocked",
       evidenceItems: [],
-      dueDate: '2026-09-10',
+      dueDate: "2026-09-10",
     },
   ];
 
@@ -30,5 +32,5 @@ test('buildIrisReportingSummary computes status and evidence metrics', () => {
   assert.equal(summary.evidenceCount, 4);
   assert.equal(summary.overdueCount, 1);
   assert.equal(summary.complianceScore, 67);
-  assert.equal(summary.nextDue, '2026-08-10');
+  assert.equal(summary.nextDue, "2026-08-10");
 });

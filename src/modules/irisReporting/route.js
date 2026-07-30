@@ -1,63 +1,39 @@
 const express = require("express");
-const multer = require("multer");
-const auth = require("../../middlewares/auth");
+const multer  = require("multer");
+const auth    = require("../../middlewares/auth");
 const { isSuperAdmin } = require("../../middlewares/auth");
-const irisReportingController = require("./controller");
+const ctrl    = require("./controller");
 
 const router = express.Router();
 
-// Configure multer for in-memory file storage
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB max file size
-  },
+  limits:  { fileSize: 10 * 1024 * 1024 }, // 10 MB
 });
 
+// All IRIS routes require valid JWT + admin userType
+const guard = [auth(), isSuperAdmin()];
+
 router
-  .get("/overview", auth(), isSuperAdmin(), irisReportingController.getOverview)
-  .get(
-    "/report-pack",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.getReportPack,
-  )
-  .post(
-    "/requirements",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.createRequirement,
-  )
-  .patch(
-    "/requirements/:requirementId",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.updateRequirement,
-  )
-  .delete(
-    "/requirements/:requirementId",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.deleteRequirement,
-  )
-  .post(
-    "/requirements/:requirementId/files",
-    auth(),
-    isSuperAdmin(),
-    upload.single("file"),
-    irisReportingController.uploadEvidenceFile,
-  )
-  .get(
-    "/requirements/:requirementId/files/:fileId",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.downloadEvidenceFile,
-  )
-  .delete(
-    "/requirements/:requirementId/files/:fileId",
-    auth(),
-    isSuperAdmin(),
-    irisReportingController.deleteEvidenceFile,
-  );
+  // Overview + report pack
+  .get("/overview",     ...guard, ctrl.getOverview)
+  .get("/report-pack",  ...guard, ctrl.getReportPack)
+
+  // Obligation CRUD
+  .post("/requirements",                      ...guard, ctrl.createRequirement)
+  .patch("/requirements/:requirementId",      ...guard, ctrl.updateRequirement)
+  .delete("/requirements/:requirementId",     ...guard, ctrl.deleteRequirement)
+
+  // Approval workflow — PATCH decision on a single step
+  .patch("/requirements/:requirementId/steps/:stepId/decision", ...guard, ctrl.decideApprovalStep)
+
+  // Comments
+  .post("/requirements/:requirementId/comments",              ...guard, ctrl.addComment)
+  .delete("/requirements/:requirementId/comments/:commentId", ...guard, ctrl.deleteComment)
+
+  // Evidence files
+  .post("/requirements/:requirementId/files",             ...guard, upload.single("file"), ctrl.uploadEvidenceFile)
+  .get("/requirements/:requirementId/files/:fileId",      ...guard, ctrl.downloadEvidenceFile)
+  .delete("/requirements/:requirementId/files/:fileId",   ...guard, ctrl.deleteEvidenceFile);
 
 module.exports = router;
