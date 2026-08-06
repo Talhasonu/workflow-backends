@@ -19,12 +19,19 @@ router
   .get("/overview",     ...guard, ctrl.getOverview)
   .get("/report-pack",  ...guard, ctrl.getReportPack)
 
+  // Legislation library — pre-loaded FMA/SD/AASB references
+  .get("/legislation-library", ...guard, ctrl.getLegislationLibrary)
+
   // Obligation CRUD
   .post("/requirements",                      ...guard, ctrl.createRequirement)
   .patch("/requirements/:requirementId",      ...guard, ctrl.updateRequirement)
   .delete("/requirements/:requirementId",     ...guard, ctrl.deleteRequirement)
 
-  // Approval workflow — PATCH decision on a single step
+  // Dry-run validation
+  .post("/requirements/validate",                          ...guard, ctrl.validateRequirement)
+  .post("/requirements/:requirementId/validate",           ...guard, ctrl.validateRequirement)
+
+  // Approval workflow
   .patch("/requirements/:requirementId/steps/:stepId/decision", ...guard, ctrl.decideApprovalStep)
 
   // Comments

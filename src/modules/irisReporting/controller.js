@@ -105,10 +105,29 @@ const deleteEvidenceFile = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).json({ success: true, ...result });
 });
 
+// ── Legislation Library ───────────────────────────────────────────────────────
+const getLegislationLibrary = catchAsync(async (req, res) => {
+  const library = svc.getLegislationLibrary();
+  res.status(httpStatus.OK).json({ success: true, library });
+});
+
+// ── Validate (dry-run) ────────────────────────────────────────────────────────
+const validateRequirement = catchAsync(async (req, res) => {
+  const { requirementId } = req.params; // optional
+  const result = await svc.validateOnly({
+    workspaceId:   workspaceId(req),
+    requirementId: requirementId || null,
+    payload:       req.body,
+  });
+  res.status(httpStatus.OK).json({ success: true, ...result });
+});
+
 module.exports = {
   getOverview, getReportPack,
   createRequirement, updateRequirement, deleteRequirement,
   decideApprovalStep,
   addComment, deleteComment,
   uploadEvidenceFile, downloadEvidenceFile, deleteEvidenceFile,
+  getLegislationLibrary,
+  validateRequirement,
 };

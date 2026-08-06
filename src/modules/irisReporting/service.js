@@ -2,8 +2,9 @@ const mongoose  = require("mongoose");
 const httpStatus = require("http-status");
 const ApiError   = require("../../utils/ApiError");
 const { IrisReportingRequirement } = require("./model");
-const defaultRequirements = require("./defaultData");
-const { buildIrisReportingSummary } = require("./summary");
+const defaultRequirements          = require("./defaultData");
+const { buildIrisReportingSummary }= require("./summary");
+const { validateRequirement, applyMaterialityRules } = require("./businessRules");
 
 // ─── Cloudinary setup ─────────────────────────────────────────────────────────
 const cloudinary = require("cloudinary").v2;
@@ -76,6 +77,15 @@ const getReportPack = async ({ workspaceId }) => {
 
 // ─── Create Requirement ───────────────────────────────────────────────────────
 const createRequirement = async ({ workspaceId, payload }) => {
+  // Apply materiality auto-rules before validation
+  applyMaterialityRules(payload);
+
+  // Validate — block on errors, allow warnings through
+  const validation = validateRequirement({ ...payload, evidenceFiles: [] });
+  if (!validation.valid) {
+    throw new ApiError(httpStatus.UNPROCESSABLE_ENTITY, validation.errors[0]);
+  }
+
   const requirement = await IrisReportingRequirement.create({
     workspaceId,
     title:              payload.title,
@@ -107,6 +117,20 @@ const createRequirement = async ({ workspaceId, payload }) => {
 const updateRequirement = async ({ workspaceId, requirementId, payload }) => {
   const req = await IrisReportingRequirement.findOne({ _id: requirementId, workspaceId });
   if (!req) throw new ApiError(httpStatus.NOT_FOUND, "Reporting requirement not found");
+
+  // Build the merged state to validate against
+  const merged = {
+    ...req.toObject(),
+    ...payload,
+    evidenceFiles: req.evidenceFiles || [],
+  };
+
+  applyMaterialityRules(merged);
+
+  const validation = validateRequirement(merged);
+  if (!validation.valid) {
+    throw new ApiError(httpStatus.UNPROCESSABLE_ENTITY, validation.errors[0]);
+  }
 
   const fields = [
     "title", "source", "legislationRef", "category", "obligationType",
@@ -267,6 +291,20 @@ const deleteEvidenceFile = async ({ workspaceId, requirementId, fileId }) => {
   return { fileId };
 };
 
+// ─── Validate (dry-run — no save) ────────────────────────────────────────────
+const validateOnly = async ({ workspaceId, requirementId, payload }) => {
+  let base = {};
+  if (requirementId) {
+    const existing = await IrisReportingRequirement.findOne({ _id: requirementId, workspaceId });
+    if (existing) base = existing.toObject();
+  }
+  const merged = { ...base, ...payload, evidenceFiles: base.evidenceFiles || [] };
+  return validateRequirement(merged);
+};
+
+// ─── Legislation Library ──────────────────────────────────────────────────────
+const getLegislationLibrary = () => require("./legislationLibrary");
+
 module.exports = {
   getOverview,
   getReportPack,
@@ -279,4 +317,6 @@ module.exports = {
   uploadEvidenceFile,
   getEvidenceFile,
   deleteEvidenceFile,
+  validateOnly,
+  getLegislationLibrary,
 };
