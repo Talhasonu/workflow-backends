@@ -107,7 +107,7 @@ const deleteEvidenceFile = catchAsync(async (req, res) => {
 
 // ── Legislation Library ───────────────────────────────────────────────────────
 const getLegislationLibrary = catchAsync(async (req, res) => {
-  const library = svc.getLegislationLibrary();
+  const library = await svc.getLegislationLibrary();
   res.status(httpStatus.OK).json({ success: true, library });
 });
 

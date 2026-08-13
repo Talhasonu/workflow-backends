@@ -303,7 +303,32 @@ const validateOnly = async ({ workspaceId, requirementId, payload }) => {
 };
 
 // ─── Legislation Library ──────────────────────────────────────────────────────
-const getLegislationLibrary = () => require("./legislationLibrary");
+// Reads from MongoDB (populated by seedLegislationLibrary.js).
+// Falls back to the static file if the collection is empty — safe for dev
+// environments that haven't run the seed script yet.
+const { LegislationLibrary } = require("./legislationLibraryModel");
+
+const getLegislationLibrary = async () => {
+  try {
+    const docs = await LegislationLibrary.find({ archived: false })
+      .sort({ source: 1, ref: 1 })
+      .lean();
+
+    if (docs.length > 0) {
+      return docs.map(({ ref, title, source, category, obligationType, defaultMateriality }) => ({
+        ref, title, source, category, obligationType, defaultMateriality,
+      }));
+    }
+
+    // DB collection is empty — fall back to static file (dev convenience)
+    console.warn("[IRIS] LegislationLibrary collection is empty — using static fallback. Run: node scripts/seedLegislationLibrary.js");
+    return require("./legislationLibrary");
+
+  } catch (err) {
+    console.error("[IRIS] getLegislationLibrary DB error, using static fallback:", err.message);
+    return require("./legislationLibrary");
+  }
+};
 
 module.exports = {
   getOverview,
