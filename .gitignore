@@ -1,2 +1,6 @@
 /.env
 /node_modules
+
+# Client legislation source files — stored locally, not committed to repo
+# Place updated files here and re-run: npm run import:legislation
+/legislation-sources/

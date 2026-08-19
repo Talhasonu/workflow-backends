@@ -1,6 +1,6 @@
 /**
  * IRIS Legislation Reference Library — AUTO-GENERATED
- * Generated: 2026-08-13T20:27:44.689Z
+ * Generated: 2026-08-17T19:55:05.543Z
  * Sources:
  *   - Compliance-Attestation-Checklist-2025-26-(Updated-January-2026).xlsx
  *   - 94-18a069.docx

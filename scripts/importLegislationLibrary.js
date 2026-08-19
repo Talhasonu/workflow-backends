@@ -33,14 +33,30 @@ const XLSX   = require("xlsx");
 const mammoth = require("mammoth");
 
 // ─── Source file paths ────────────────────────────────────────────────────────
-const PROJECT_ROOT = path.resolve(__dirname, "../../");
+// Place the three source files in the `legislation-sources/` folder at the
+// root of the backend repo (same level as package.json).
+// That folder is gitignored — checked in locally only, not committed.
+//
+// Expected layout:
+//   workflow-backend/
+//     legislation-sources/
+//       Compliance-Attestation-Checklist-2025-26-(Updated-January-2026).xlsx
+//       94-18a069.docx
+//       Standing-Directions-2018-(updated-September-2025).docx
+//     scripts/
+//       importLegislationLibrary.js   ← this file
+//
+// When the client sends updated files, replace the files in legislation-sources/
+// and re-run: npm run import:legislation
 
-const EXCEL_PATH = path.join(PROJECT_ROOT,
+const SOURCES_DIR = path.resolve(__dirname, "../legislation-sources");
+
+const EXCEL_PATH = path.join(SOURCES_DIR,
   "Compliance-Attestation-Checklist-2025-26-(Updated-January-2026).xlsx");
 
-const FMA_DOCX_PATH = path.join(PROJECT_ROOT, "94-18a069.docx");
+const FMA_DOCX_PATH = path.join(SOURCES_DIR, "94-18a069.docx");
 
-const SD_DOCX_PATH  = path.join(PROJECT_ROOT,
+const SD_DOCX_PATH  = path.join(SOURCES_DIR,
   "Standing-Directions-2018-(updated-September-2025).docx");
 
 // ─── Output path ─────────────────────────────────────────────────────────────
